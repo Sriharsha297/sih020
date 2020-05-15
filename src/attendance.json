@@ -1,0 +1,38 @@
+[
+    {
+        "empId":"9100427531",
+        "username":"Harsha",
+        "status":"present",
+        "totalPresent": "29",
+        "leavesTaken":"1"
+    },
+    {
+        "empId":"8309488756",
+        "username":"Harini",
+        "status":"absent",
+        "totalPresent": "27",
+        "leavesTaken":"3"
+    },
+    {
+        "empId":"7893287814",
+        "username":"Bharadwaj",
+        "status":"absent",
+        "totalPresent": "28",
+        "leavesTaken":"2"
+    },
+    {
+        "empId":"9701922033",
+        "username":"Venkat",
+        "status":"absent",
+        "totalPresent": "30",
+        "leavesTaken":"0"
+    },
+    {
+        "empId":"9010221111",
+        "username":"kushal",
+        "status":"present",
+        "totalPresent": "25",
+        "leavesTaken":"5"
+    }
+    
+]

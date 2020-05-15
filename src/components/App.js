@@ -128,8 +128,7 @@ class App extends Component {
       return <Redirect to='/home'/>
     }
     return (
-      <div className="App">
-        
+      <div className="App">      
         <Map
           googleMapURL={googleMapURL}
           loadingElement={

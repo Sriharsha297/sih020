@@ -8,6 +8,8 @@ import Footer from "../components/Footer";
 import App from "../components/App";
 import M_attendance from "../components/M_attendance"
 import App_test from "../App_test"
+import AttendanceStatus from "../components/AttendanceStatus"
+import LeaveApplications from "../components/LeaveApplications";
 
 
 const AppRouter = () => (
@@ -20,6 +22,8 @@ const AppRouter = () => (
                 <Route path="/home" exact component={HomePage} />
                 <Route path ="/home/geo-fence" exact component={App}/>
                 <Route path="/home/manual-attendance" exact component={M_attendance}/>
+                <Route path="/home/attendance-status" exact component={AttendanceStatus}/>
+                <Route path="/home/leave-applications" exact component={LeaveApplications}/>
                 <Route component={PageNotFound} />
             </Switch>
         <Footer/>

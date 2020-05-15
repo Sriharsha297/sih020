@@ -152,7 +152,7 @@ class HomePage extends React.Component
                         <Typography variant="h4" gutterBottom={true}>
                                 MANUAL ATTENDENCE
                         </Typography>
-                        <Button component={Link} to={'/attendence'} variant='outlined'>
+                        <Button component={Link} to={'/home/manual-attendance'} variant='outlined'>
                             Click Here<NavigateNextIcon/>
                         </Button>
                     </Paper>
@@ -160,15 +160,15 @@ class HomePage extends React.Component
                         <Typography variant="h4" gutterBottom={true}>
                                 LEAVE APPLICATIONS
                         </Typography>
-                        <Button component={Link} to={'/attendence'} variant='outlined'>
+                        <Button component={Link} to={'/home/leave-applications'} variant='outlined'>
                             Click Here<NavigateNextIcon/>
                         </Button>
                     </Paper>
                     <Paper className={classes.paper} elevation={1} >
                         <Typography variant="h4" gutterBottom={true}>
-                                ATTENDENCE STATUS
+                                ATTENDANCE STATUS
                         </Typography>
-                        <Button component={Link} to={'/attendence'} variant='outlined'>
+                        <Button component={Link} to={'/home/attendance-status'} variant='outlined'>
                             Click Here<NavigateNextIcon/>
                         </Button>
                     </Paper>

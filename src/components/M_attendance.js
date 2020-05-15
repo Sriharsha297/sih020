@@ -8,6 +8,12 @@ import Paper from '@material-ui/core/Paper';
 import Divider from '@material-ui/core/Divider';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import { Grid } from "@material-ui/core";
+import Axios from 'axios';
+import swal from 'sweetalert';
+import {Redirect} from 'react-router-dom';
+
+const branchName = "hyd";
+
 
 const styles = theme => ({
     main: {
@@ -39,13 +45,49 @@ const styles = theme => ({
 })
 
 class M_attendance extends React.Component {
+    constructor(props) {
+        super(props);
+    
+        this.state = {
+          submitted:false,
+        };
+      }
+
+    handleSubmit = (e) =>{
+        e.preventDefault();
+        const empId = e.target.elements.empId.value.trim();
+        console.log(empId);
+        Axios.post(`http://localhost:8080/hr/manualAttendance?empId=${empId}&branchName=${branchName}`)
+        .then((res)=>{
+          console.log(res.data);
+          swal({
+            title: "Submitted",
+            icon: "success",
+            button: "Okay",
+          }).then(() =>{
+            this.setState({submitted:true})
+          })
+        }).catch((err) =>{
+            if (err.response) {
+                // The request was made and the server responded with a status code
+                // that falls out of the range of 2xx
+                swal("Oops!", err.response.data.message, "error");
+                console.log(err.response.data.message);
+                console.log(err.response.status);
+            }
+          
+        })
+      }
     render(){
         const { classes } = this.props;
+        if(this.state.submitted){
+            return <Redirect to='/home'/>
+          }
         return(
             <div className={classes.main}>
             <CssBaseline />
             <Paper className={classes.paper} elevation={8}>
-                <form className={classes.form} onSubmit={this.handleLoginSubmit}>
+                <form className={classes.form} onSubmit={this.handleSubmit}>
                     <Typography color='primary' component="h1" variant="h5">
                         MANUAL ATTENDANCE
                     </Typography>
@@ -71,7 +113,7 @@ class M_attendance extends React.Component {
                     <TextField
                         label="Phone Number"
                         className={classes.textField}
-                        id="username"
+                        id="empId"
                         placeholder="Enter Employee Id here"
                         type="text"
                         inputProps={{ minLength: 10 }}
