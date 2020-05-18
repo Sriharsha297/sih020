@@ -11,7 +11,11 @@ import swal from 'sweetalert';
 
 const googleMapURL = `https://maps.googleapis.com/maps/api/js?libraries=geometry,drawing&key=AIzaSyBTHrx8pxJEFfVSVHjFVM7e2YS8ZbNqECU`;
 
-const branchName = "hyd";
+const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer ' + localStorage.getItem('token')
+  }
+
 
 const styles = theme => ({
     root: {
@@ -43,21 +47,29 @@ class HomePage extends React.Component
         super(props);
     
         this.state = {
-          paths: "",
-    
+            paths: "",
+            branchName:'',
         };
       }
     
     componentDidMount() {
+        this.watchLocation();
+        const branchName = localStorage.getItem('branch');
+        const headers = {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + localStorage.getItem('token')
+          }
+        this.setState({branchName});
         console.log("Hello");
-        Axios.get(`http://localhost:8080/hr/getFence?branchName=${branchName}`)
+
+        Axios.get(`http://localhost:8080/hr/getFence?branchName=${branchName}`,{headers:headers})
         .then((res)=>{
-        this.setState({paths:res.data.ok[0].fence})
-       
+            console.log(res.data);
+            this.setState({paths:res.data.ok[0].fence})       
         }).catch((err) =>{
         console.log("Err Msg : "+ err)
         })
-        this.watchLocation();
+        
     }
     watchLocation() {
         if ('geolocation' in navigator) {
@@ -110,16 +122,27 @@ class HomePage extends React.Component
                     </Typography>
                     <Button className={classes.btn} 
                     onClick = {() =>{
-                        Axios.get(`http://localhost:8080/hr/deleteFence?branchName=${branchName}`)
-                        .then((ok) =>{
-                            swal({
-                                title: "Deleted",
-                                icon: "success",
-                                button: "Okay",
-                              })
-                              .then(()=>{
-                                window.location.reload();
-                              })
+                        swal({
+                            title: "Are you sure?",
+                            text: "Once deleted, you will not be able to recover!",
+                            icon: "warning",
+                            buttons: true,
+                            dangerMode: true,
+                        })
+                        .then(willDelete =>{
+                            if(willDelete){
+                                Axios.get(`http://localhost:8080/hr/deleteFence?branchName=${this.state.branchName}`,{headers:headers})
+                                .then((ok) =>{
+                                swal({
+                                    title: "Deleted",
+                                    icon: "success",
+                                    button: "Okay",
+                                })
+                                .then(()=>{
+                                    window.location.reload();
+                                })
+                            })
+                            }
                         })
                     }}  
                     variant="contained"

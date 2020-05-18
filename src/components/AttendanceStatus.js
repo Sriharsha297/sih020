@@ -3,9 +3,10 @@ import { connect } from "react-redux";
 import PropTypes from 'prop-types';
 import Axios from "axios";
 import StatusList from "../attendance.json";
-import { withRouter,Link } from "react-router-dom";
-import {TablePagination,Typography,Paper,Table,TableBody,TableCell,TableHead,TableRow,withStyles} from '@material-ui/core';
+import { withRouter,Link,Redirect } from "react-router-dom";
+import {TablePagination,Typography,Paper,Table,TableBody,TableCell,TableHead,TableRow,withStyles, Button, Divider} from '@material-ui/core';
 import swal from "sweetalert";
+import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 
 
 const styles = theme => ({
@@ -27,6 +28,10 @@ const styles = theme => ({
   },
   someDivision:{
     textAlign: 'center'
+  },
+  btn: {
+    marginBottom: theme.spacing.unit*2,
+    marginTop: theme.spacing.unit*2,
   }
 });
 
@@ -34,6 +39,8 @@ const headers = {
   'Content-Type': 'application/json',
   'Authorization': 'Bearer ' + localStorage.getItem('token')
 }
+
+const branchName = localStorage.getItem('branch');
 
 class GrievancesInZone extends React.Component {
   constructor(props) {
@@ -44,6 +51,7 @@ class GrievancesInZone extends React.Component {
       page: 0,
       rowsPerPage: 5,
       length:null,
+      submitted:false,
     }
   }
 
@@ -52,12 +60,18 @@ class GrievancesInZone extends React.Component {
   }
 
    componentDidMount() {
-      const branchName = "hyd";
-      Axios.get(`http://localhost:8080/hr/attendanceStatus?branchName=${branchName}`)
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + localStorage.getItem('token')
+    }
+      Axios.get(`http://localhost:8080/hr/attendanceStatus?branchName=${branchName}`,{headers:headers})
           .then((response) =>{
             console.log(response.data.array);
             if(response.status === 200){
                 this.setState({attendanceList:response.data.array,length:response.data.array.length})
+            }
+            if(response.data.array.length == 0){
+              swal("Attendance Not Registered Yet!");
             }
           })
           .catch((err)=>{
@@ -87,9 +101,15 @@ class GrievancesInZone extends React.Component {
     //   )
     // } 
     const { classes } = this.props;
-
+    if(this.state.submitted){
+      return <Redirect to='/home'/>
+    }
     return (
       <div className={classes.main}>
+        <Button onClick = {() => {this.setState({submitted:true})}} className={classes.btn}>
+            <ArrowBackIosIcon />Go Back
+        </Button>
+        <Divider/>
         <Typography color='primary' component="h1" variant="h5">
            PRESENT DAY STATUS
         </Typography>
@@ -102,7 +122,7 @@ class GrievancesInZone extends React.Component {
                         <TableCell >Employee Id</TableCell>
                         <TableCell >Employee Name</TableCell>
                         <TableCell >Total Present </TableCell>
-                        <TableCell >Leaves Taken</TableCell>
+                        <TableCell >Leaves Left</TableCell>
                         <TableCell >Current Day status</TableCell>
                     </TableRow>
                 </TableHead>
@@ -116,7 +136,7 @@ class GrievancesInZone extends React.Component {
                                 <TableCell>{(item.empId)}</TableCell>
                                 <TableCell>{item.username.toUpperCase()}</TableCell>
                                 <TableCell>{(item.totalPresent)}</TableCell>
-                                <TableCell>{(item.leavesTaken)}</TableCell>
+                                <TableCell>{(item.leavesLeft)}</TableCell>
                                 <TableCell>
                                     {
                                         (item.status === 'present')

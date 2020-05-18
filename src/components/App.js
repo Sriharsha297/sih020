@@ -17,6 +17,10 @@ const styles = theme => ({
   }
 })
 
+const headers = {
+  'Content-Type': 'application/json',
+  'Authorization': 'Bearer ' + localStorage.getItem('token')
+}
 
 class App extends Component {
   constructor(props) {
@@ -28,12 +32,16 @@ class App extends Component {
       previousPolygon: null,
       zone:'',
       submitted:false,
+      branchName:'',
     };
   }
 
   componentDidMount() {
-    console.log("cdm ",this.state.fence);
     this.watchLocation();
+    const branchName = localStorage.getItem('branch');
+    this.setState({branchName})
+    console.log("cdm ",this.state.fence);
+    
   }
 
   componentWillUnmount() {
@@ -67,11 +75,9 @@ class App extends Component {
         lng: position.coords.longitude,
       }
     });
+    console.log("Hurrey");
   }
-  getCurrentPosition() {
-    const currentPosition = new google.maps.LatLng(this.state.center.lat, this.state.center.lng);
-    return currentPosition;
-  }
+
 
 
   doneDrawing(polygon) {
@@ -86,6 +92,7 @@ class App extends Component {
       }),
     });
 
+
   }
   handleSubmit = () =>{
     const fenceObj = this.state.fence;
@@ -97,16 +104,9 @@ class App extends Component {
       })
     });
 
-    Axios.post('http://localhost:8080/hr/saveFence',polygon)
+    Axios.post(`http://localhost:8080/hr/saveFence?branchName=${this.state.branchName}`,polygon,{headers:headers})
     .then((res)=>{
       console.log(res.data);
-      // const polygon = new google.maps.Polygon({
-      //   paths: res.data,
-      // });
-      // const currentPosition = new google.maps.LatLng(17.3621969, 78.553551);
-      // var insideFence = google.maps.geometry.poly
-      // .containsLocation(currentPosition, polygon);
-      // console.log(insideFence);
       swal({
         title: "Submitted",
         icon: "success",
@@ -121,8 +121,8 @@ class App extends Component {
 
   render() {
     const { classes } = this.props;
-    if (this.state.fence) {
-      
+    if (!this.state.center) {
+      return <div />
     }
     if(this.state.submitted){
       return <Redirect to='/home'/>

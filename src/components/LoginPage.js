@@ -7,15 +7,18 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import Link from '@material-ui/core/Link';
 import Grid from '@material-ui/core/Grid';
-import Box from '@material-ui/core/Box';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
-import { makeStyles } from '@material-ui/core/styles';
+import { withStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import { Divider } from '@material-ui/core';
+import { withRouter,Redirect } from "react-router-dom";
+import Axios from 'axios';
+import swal from 'sweetalert';
 
 
-const useStyles = makeStyles(theme => ({
+
+const styles = theme => ({
   paper: {
     marginTop: theme.spacing(8),
     display: 'flex',
@@ -33,85 +36,118 @@ const useStyles = makeStyles(theme => ({
   submit: {
     margin: theme.spacing(3, 0, 2),
   },
-}));
+})
 
-function handleLoginSubmit(e)
-{
-    e.preventDefault();
-    console.log("Hello");
-    const username = e.target.elements.username.value.trim();
-    const password = e.target.elements.password.value.trim();
 
-    const loginObj = {
-        username,
-        password
+class LoginPage extends React.Component {
+  constructor(props) {
+      super(props);
+      this.handleLoginSubmit = this.handleLoginSubmit.bind(this);
+      this.state = {
+          isAuthorised: false,
+          error:'',
+         // open:true
+      }
+  }
+  handleLoginSubmit(e)
+  {
+      e.preventDefault();
+      console.log("Hello");
+      const hrId = e.target.elements.username.value.trim();
+      const password = e.target.elements.password.value.trim();
+
+      const loginObj = {
+          hrId,
+          password
+      }
+
+      Axios.post(`http://localhost:8080/hr/login`,loginObj)
+      .then((response) => {
+        console.log(response.data)
+        localStorage.setItem('name',response.data.hr.name);
+        localStorage.setItem('empId',response.data.hr.hrId);
+        localStorage.setItem('branch',response.data.hr.branch);
+        localStorage.setItem('token',response.data.token);
+        this.setState({isAuthorised:true})
+      })
+      .catch((error)=>{
+        console.log(error);
+        if (error.response.status == 400) {
+          swal("Invalid Credentials!","","error")
+        }
+      });
+  }
+  render(){
+
+    const {classes} = this.props;
+    if(!!localStorage.getItem('token')){
+      return <Redirect to='/home'/>
     }
-
-    console.log(loginObj);
-}
-
-export default function SignIn() {
-  const classes = useStyles();
+    if (this.state.isAuthorised) {
+      return <Redirect to="/home" />
+    }
    
-  return (
-    <Container component="main" maxWidth="xs">
-      <CssBaseline />
-      <div className={classes.paper}>
-        <Avatar className={classes.avatar}>
-          <LockOutlinedIcon />
-        </Avatar>
-        <Typography component="h1" variant="h5">
-          Sign in
-        </Typography>
-        <form className={classes.form} onSubmit ={handleLoginSubmit} >
-          <TextField
-            variant="outlined"
-            margin="normal"
-            required ={true}
-            inputProps={{ minLength: 10 }}
-            fullWidth
-            id="uername"
-            label="Username"
-            name="username"
-            autoComplete="username"
-            autoFocus
-          />
-          <TextField
-            variant="outlined"
-            margin="normal"
-            required
-            fullWidth
-            name="password"
-            label="Password"
-            type="password"
-            id="password"
-            autoComplete="current-password"
-          />
-          <FormControlLabel
-            control={<Checkbox value="remember" color="primary" />}
-            label="Remember me"
-          />
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            color="primary"
-            className={classes.submit}
-          >
-            Sign In
-          </Button>
-          <Grid container>
-            <Grid item xs>
-              <Link href="#" variant="body2">
-                Forgot password?
-              </Link>
+    return (
+      <Container component="main" maxWidth="xs">
+        <CssBaseline />
+        <div className={classes.paper}>
+          <Avatar className={classes.avatar}>
+            <LockOutlinedIcon />
+          </Avatar>
+          <Typography component="h1" variant="h5">
+            HR SIGN IN
+          </Typography>
+          <form className={classes.form} onSubmit ={this.handleLoginSubmit} >
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required ={true}
+              // inputProps={{ minLength: 10 }}
+              fullWidth
+              id="uername"
+              label="Username"
+              name="username"
+              autoComplete="username"
+              autoFocus
+            />
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
+              name="password"
+              label="Password"
+              type="password"
+              id="password"
+              autoComplete="current-password"
+            />
+            <FormControlLabel
+              control={<Checkbox value="remember" color="primary" />}
+              label="Remember me"
+            />
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              color="primary"
+              className={classes.submit}
+            >
+              Sign In
+            </Button>
+            <Grid container>
+              <Grid item xs>
+                <Link href="#" variant="body2">
+                  Forgot password?
+                </Link>
+              </Grid>
             </Grid>
-          </Grid>
-        </form>
-      </div>
+          </form>
+        </div>
 
 
-      <Divider/>
-    </Container>
-  );
+        <Divider/>
+      </Container>
+    );
+  }
 }
+export default withStyles(styles)(withRouter(LoginPage));

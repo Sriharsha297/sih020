@@ -1,16 +1,13 @@
 import React from 'react';
 import { withRouter } from 'react-router-dom';
-import { withStyles, Button, List, ListItem, ListItemIcon, ListItemText, withWidth, Typography } from '@material-ui/core';
+import { withStyles, Button, List, ListItem, ListItemIcon, ListItemText, withWidth, Typography, Menu, MenuItem } from '@material-ui/core';
 import { CssBaseline, AppBar, Toolbar, Hidden, Drawer, IconButton } from '@material-ui/core';
 import compose from 'recompose/compose';
 import MenuIcon from '@material-ui/icons/Menu';
 import HomeIcon from '@material-ui/icons/HomeOutlined';
-import HelpIcon from '@material-ui/icons/HelpOutlineOutlined';
-import InfoIcon from '@material-ui/icons/InfoOutlined';
-import VisibilityIcon from '@material-ui/icons/VisibilityOutlined';
-import PersonIcon from '@material-ui/icons/Person';
-import GroupIcon from '@material-ui/icons/Group';
 import MailIcon from '@material-ui/icons/Mail';
+import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+import Axios from 'axios';
 // import UserMenu from './UserMenu';
 
 const DRAWER_WIDTH = 240;
@@ -23,6 +20,7 @@ const styles = theme => ({
     appBar: {
 		background: '#08002A',
         'box-shadow': 'none',
+        flexGrow: 1,
         position: 'sticky !important'
 	},
 
@@ -61,45 +59,26 @@ const styles = theme => ({
     toolbar: theme.mixins.toolbar,
 });
 
+const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer ' + localStorage.getItem('token')
+}
+
 class Navbar extends React.Component {
-
-    state = {
-        mobileOpen: false,
-    };
-
-
-    navRoutes = ['/', '/aboutUs', '/viewStatus', '/help', '/contactUs'];
+    constructor(props) {
+        super(props);
     
-    handleDrawerToggle = () => {
-		this.setState(state => ({ mobileOpen: !state.mobileOpen }));
-    };
-    
-    handleRedirection = (index, history) => {
-        history.push(this.navRoutes[index]);
-        this.setState({mobileOpen: false});
+        this.state = {
+          submitted:false,
+        };
+    }
+    handleLogout = () =>{
+        console.log("hey");
     }
 
     render() {
-        const {classes, theme, history, loggedIn} = this.props;
+        const {classes} = this.props;
 
-        const icons = [<HomeIcon/>, <InfoIcon/>, <VisibilityIcon/>, <HelpIcon/>, <MailIcon/>];
-        let hide = [ true, true, !loggedIn, true, true,loggedIn ];
-
-        const drawer = (
-            <div className={classes.toolbar} >
-                <List>
-                    {
-                        ['Home', 'About us', 'View status', 'Help', 'Contact us','Logout'].map( (text, index) => (
-                            hide[index] &&
-                            <ListItem button onClick={ () => this.handleRedirection(index, history) } key={text}>
-                                <ListItemIcon> { icons[index] } </ListItemIcon>
-                                <ListItemText primary={text}/>
-                            </ListItem>
-                        ))
-                    }
-                </List>
-            </div>
-        );
 
         return (
             <div className={classes.root}>
@@ -109,36 +88,39 @@ class Navbar extends React.Component {
                         <IconButton
                             color="inherit"
                             aria-label="Open drawer"
-                            onClick={this.handleDrawerToggle}
-                            className={classes.menuButton}
                         >
                             <MenuIcon />
                         </IconButton>
-                        iugu
-                        
-
-                        {/* <UserMenu /> */}
+                        NYKS HR
+                        {
+                            !!localStorage.getItem('token')   &&
+                            <div style={{marginLeft: 'auto'}}>
+                                <Button
+                                    color="inherit"
+                                    aria-haspopup="true"
+                                    onClick = {this.handleLogout}
+                                >
+                                    <Typography color="inherit" variant="subtitle2" onClick = {() =>{
+                                        const headers = {
+                                            'Content-Type': 'application/json',
+                                            'Authorization': 'Bearer ' + localStorage.getItem('token')
+                                        }
+                                        Axios.post(`http://localhost:8080/hr/logout`,null,{headers:headers})
+                                        .then(()=>{
+                                            console.log("Successfully logged out!");
+                                        })
+                                        localStorage.clear();
+                                        this.props.history.push('/')
+                                         
+                                    }}>
+                                        LOGOUT
+                                    </Typography>
+                                </Button>
+                            </div>
+                        }
 
                     </Toolbar>
                 </AppBar>
-
-                <nav className={classes.drawer}>
-                    {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
-                    
-                        <Drawer
-                            container={this.props.container}
-                            variant="temporary"
-                            anchor={theme.direction === 'rtl' ? 'right' : 'left'}
-                            open={this.state.mobileOpen}
-                            onClose={this.handleDrawerToggle}
-                            classes={{
-                                paper: classes.drawerPaper,
-                            }}
-                        >
-                            {drawer}
-                        </Drawer>
-                    
-			    </nav>
             </div>
         )
     } 

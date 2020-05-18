@@ -11,9 +11,14 @@ import { Grid } from "@material-ui/core";
 import Axios from 'axios';
 import swal from 'sweetalert';
 import {Redirect} from 'react-router-dom';
+import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 
-const branchName = "hyd";
+const branchName = localStorage.getItem('branch');
 
+const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer ' + localStorage.getItem('token')
+  }
 
 const styles = theme => ({
     main: {
@@ -42,6 +47,10 @@ const styles = theme => ({
     submit: {
         marginTop: theme.spacing.unit * 3,
     },
+    btn: {
+        marginBottom: theme.spacing.unit*2,
+        marginTop: theme.spacing.unit*2,
+    },
 })
 
 class M_attendance extends React.Component {
@@ -57,7 +66,7 @@ class M_attendance extends React.Component {
         e.preventDefault();
         const empId = e.target.elements.empId.value.trim();
         console.log(empId);
-        Axios.post(`http://localhost:8080/hr/manualAttendance?empId=${empId}&branchName=${branchName}`)
+        Axios.post(`http://localhost:8080/hr/manualAttendance?empId=${empId}&branchName=${branchName}`,null,{headers:headers})
         .then((res)=>{
           console.log(res.data);
           swal({
@@ -86,6 +95,10 @@ class M_attendance extends React.Component {
         return(
             <div className={classes.main}>
             <CssBaseline />
+            <Button onClick = {() => {this.setState({submitted:true})}} className={classes.btn}>
+                    <ArrowBackIosIcon />Go Back
+            </Button>
+            <Divider/>
             <Paper className={classes.paper} elevation={8}>
                 <form className={classes.form} onSubmit={this.handleSubmit}>
                     <Typography color='primary' component="h1" variant="h5">

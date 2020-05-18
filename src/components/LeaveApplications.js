@@ -3,9 +3,10 @@ import { Redirect } from "react-router-dom";
 import Axios from "axios";
 import {Button,Grid,Typography,Divider,Card,CardContent,CardActions,withStyles,Paper} from "@material-ui/core";
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
+import swal from 'sweetalert';
 
 
-const branchName = "hyd";
+
 
 const styles = theme => ({
   main: {
@@ -20,6 +21,9 @@ const styles = theme => ({
   },
   pos: {
     marginTop: theme.spacing.unit,
+  },
+  res:{
+    marginLeft :theme.spacing.unit*2,
   },
   card: {
     minWidth: 280,
@@ -41,8 +45,7 @@ const headers = {
   'Authorization': 'Bearer ' + localStorage.getItem('token')
 }
 
-
-
+const branchName = localStorage.getItem('branch');
 
 class LeaveApplications extends React.Component {
   constructor(props) {
@@ -54,12 +57,18 @@ class LeaveApplications extends React.Component {
   }
 
   componentDidMount() {
-    
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + localStorage.getItem('token')
+    }
   
-    Axios.get(`http://localhost:8080/hr/leaveApplications?branchName=${branchName}`)
+    Axios.get(`http://localhost:8080/hr/leaveApplications?branchName=${branchName}`,{headers:headers})
       .then((response) => {
           console.log(response.data.array)
         this.setState({applications:response.data.array})
+        if(response.data.array.length == 0){
+          swal("No Leave applications yet!");
+        }
       })
       .catch((error)=>{
         if (error.response) {
@@ -94,7 +103,7 @@ class LeaveApplications extends React.Component {
                     <Typography className={classes.pos} color="textSecondary">
                         Employee Name : 
                         <Typography display="inline" variant="h6" color='primary'>
-                            {single.username}
+                            {single.username.toUpperCase()}
                         </Typography>
                     </Typography>
                     
@@ -108,14 +117,14 @@ class LeaveApplications extends React.Component {
                         Total Present : {single.totalPresent}
                     </Typography>
                     <Typography className={classes.pos} color="textSecondary">
-                        Leaves left : {single.leavesTaken}
+                        Leaves left : {single.leavesLeft}
                     </Typography>
                    
                     <Typography variant="h6" component="h3">
                         Leave Details
                     </Typography>
                     <Typography className={classes.pos} color="textSecondary">
-                    Applied On : 03-01-2020
+                    Applied On : {single.appliedOn}
                     </Typography>
 
                     <Typography className={classes.pos} color="textSecondary">
@@ -136,13 +145,58 @@ class LeaveApplications extends React.Component {
                     {single.reason}
                     </Typography>
                 </CardContent>
+                <Divider/>
                 <CardActions>
-                    <Button color='primary'  variant='contained'>
-                      Accept
-                    </Button>
-                    <Button color='secondary'  variant='contained'>
-                      Reject
-                    </Button>
+                  {
+                    single.status == 'pending' 
+                    ?
+                    <div>
+                      <Button color='primary' variant='contained' onClick = {() =>{
+                        console.log(single.empId);
+                        Axios.put(`http://localhost:8080/hr/acceptLeave?leaveId=${single.leaveId}&empId=${single.empId}`)
+                        .then((res) =>{
+                          console.log(res);
+                          swal({
+                            title: "Leave Accepted",
+                            icon: "success",
+                            button: "Okay",
+                          })
+                          .then(()=>{
+                            window.location.reload();
+                          })
+                        })
+                        .catch(err =>{
+                          console.log(err);
+                        })
+                      }}>
+                        Accept
+                      </Button>
+                      <Button color='secondary' className={classes.btn}  variant='contained' onClick = {() =>{
+                        console.log(single.empId)
+                        Axios.put(`http://localhost:8080/hr/rejectLeave?leaveId=${single.leaveId}`)
+                        .then((res) =>{
+                          console.log(res);
+                          swal({
+                            title: "Leave Rejected",
+                            icon: "success",
+                            button: "Okay",
+                          })
+                          .then(()=>{
+                            window.location.reload();
+                          })
+                        })
+                        .catch(err =>{
+                          console.log(err);
+                        })
+                      }}>
+                        Reject
+                      </Button>
+                    </div>
+                    :
+                    <Typography className={classes.res} color="secondary">
+                    STATUS : {single.status.toUpperCase()}
+                    </Typography>
+                    }
 
                 </CardActions>
             </Card>
