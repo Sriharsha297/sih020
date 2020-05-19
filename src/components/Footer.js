@@ -26,7 +26,7 @@ const Footer = (props) => {
     return (
         <div className={classes.root}>
             <footer className={classes.footer}>
-                <Typography color="inherit" variant="subheading" >Content created by team Chocolate</Typography>
+                <Typography color="inherit" variant="subheading" >Major Project 2020</Typography>
                 
             </footer>
         </div>

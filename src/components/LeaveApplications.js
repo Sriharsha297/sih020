@@ -153,7 +153,7 @@ class LeaveApplications extends React.Component {
                     <div>
                       <Button color='primary' variant='contained' onClick = {() =>{
                         console.log(single.empId);
-                        Axios.put(`http://localhost:8080/hr/acceptLeave?leaveId=${single.leaveId}&empId=${single.empId}`)
+                        Axios.put(`http://localhost:8080/hr/acceptLeave?leaveId=${single.leaveId}&empId=${single.empId}&days=${single.days}`)
                         .then((res) =>{
                           console.log(res);
                           swal({
